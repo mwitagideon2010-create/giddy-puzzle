@@ -1,47 +1,114 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Giddy Puzzle</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body{
-background:#1e88e5;
+margin:0;
+font-family:Arial,sans-serif;
+background:#1976d2;
 color:white;
-font-family:Arial;
 text-align:center;
-padding:20px;
+}
+h1{
+padding-top:20px;
+}
+#board{
+display:grid;
+grid-template-columns:repeat(4,70px);
+gap:5px;
+justify-content:center;
+margin:20px auto;
+}
+.tile{
+width:70px;
+height:70px;
+font-size:24px;
+font-weight:bold;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+.empty{
+background:#0d47a1;
 }
 button{
-padding:15px;
-font-size:20px;
-margin:10px;
+padding:10px 20px;
+font-size:16px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 </style>
 </head>
-<body>
+<body><h1>🧩 Giddy Puzzle</h1>
+<p>Arrange the numbers in order!</p><div id="board"></div><button onclick="shuffle()">New Game</button>
 
-<h1>🧩 Giddy Puzzle</h1>
+<p id="message"></p><script>
+let tiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
 
-<p>Find the hidden number!</p>
+function draw(){
+const board=document.getElementById("board");
+board.innerHTML="";
 
-<button onclick="play()">Play</button>
+tiles.forEach((num,index)=>{
+const btn=document.createElement("button");
+btn.className="tile"+(num===0?" empty":"");
+btn.textContent=num===0?"":num;
+btn.onclick=()=>move(index);
+board.appendChild(btn);
+});
+}
 
-<p id="result"></p>
+function move(index){
+const empty=tiles.indexOf(0);
 
-<script>
-function play(){
-let answer=Math.floor(Math.random()*10)+1;
-let guess=prompt("Guess a number from 1 to 10");
+const valid=[
+empty-1,
+empty+1,
+empty-4,
+empty+4
+];
 
-if(Number(guess)===answer){
-document.getElementById("result").innerHTML=
-"🎉 Correct!";
-}else{
-document.getElementById("result").innerHTML=
-"Try again! Number was "+answer;
+if(valid.includes(index)){
+[tiles[index],tiles[empty]]=
+[tiles[empty],tiles[index]];
+
+draw();
+checkWin();
 }
 }
-</script>
 
-</body>
+function shuffle(){
+for(let i=0;i<200;i++){
+const empty=tiles.indexOf(0);
+const moves=[
+empty-1,
+empty+1,
+empty-4,
+empty+4
+].filter(x=>x>=0 && x<16);
+
+const move=
+moves[Math.floor(Math.random()*moves.length)];
+
+[tiles[move],tiles[empty]]=
+[tiles[empty],tiles[move]];
+}
+draw();
+document.getElementById("message").innerHTML="";
+}
+
+function checkWin(){
+const win=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+
+if(JSON.stringify(tiles)===JSON.stringify(win)){
+document.getElementById("message").innerHTML=
+"🎉 Congratulations! You solved Giddy Puzzle!";
+}
+}
+
+shuffle();
+</script></body>
 </html>
