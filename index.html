@@ -42,7 +42,21 @@ cursor:pointer;
 }
 </style>
 </head>
-<body><h1>🧩 Giddy Puzzle</h1>
+<body>
+<h1>🧩 Giddy Puzzle</h1>
+
+<h3>⭐ Level: <span id="level">1</span></h3>
+let level=1;
+let coins=0;
+let tiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+
+<p>Arrange the numbers in order!</p>
+<h1>🧩 Giddy Puzzle</h1>
+
+<h3>⭐ Level: <span id="level">1</span></h3>
+<h3>🪙 Coins: <span id="coins">0</span></h3>
+
+<p>Arrange the numbers in order!</p>
 <p>Arrange the numbers in order!</p><div id="board"></div><button onclick="shuffle()">New Game</button>
 
 <p id="message"></p><script>
@@ -98,16 +112,40 @@ moves[Math.floor(Math.random()*moves.length)];
 }
 draw();
 document.getElementById("message").innerHTML="";
-}
-
-function checkWin(){
+}function checkWin(){
 const win=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
 
 if(JSON.stringify(tiles)===JSON.stringify(win)){
-document.getElementById("message").innerHTML=
-"🎉 Congratulations! You solved Giddy Puzzle!";
+
+coins += level * 10;
+
+document.getElementById("coins").innerHTML = coins;
+
+if(level < 8){
+
+document.getElementById("message").innerHTML =
+"🎉 Level " + level +
+" Complete! +" + (level*10) + " Coins";
+
+level++;
+
+document.getElementById("level").innerHTML = level;
+
+setTimeout(function(){
+shuffle();
+},1500);
+
+}else{
+
+document.getElementById("message").innerHTML =
+"👑 Giddy Champion! Total Coins: " + coins;
+
 }
+
 }
+  }
+
+func
 
 shuffle();
 </script></body>
