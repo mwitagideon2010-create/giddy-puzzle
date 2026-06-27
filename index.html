@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Giddy Racing</title>
 
 <style>
@@ -14,7 +14,7 @@ font-family:Arial,sans-serif;
 }
 
 body{
-background:#1e88e5;
+background:#1976d2;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -24,12 +24,12 @@ overflow:hidden;
 
 #game{
 position:relative;
-width:350px;
-height:600px;
+width:360px;
+height:640px;
 background:#444;
 overflow:hidden;
-border:5px solid white;
-border-radius:10px;
+border:5px solid #fff;
+border-radius:12px;
 }
 
 #road{
@@ -42,9 +42,9 @@ background:#555;
 .line{
 position:absolute;
 left:50%;
-width:10px;
+width:8px;
 height:60px;
-background:white;
+background:#fff;
 transform:translateX(-50%);
 }
 
@@ -52,37 +52,89 @@ transform:translateX(-50%);
 position:absolute;
 bottom:20px;
 left:145px;
-width:60px;
-height:100px;
-background:red;
-border-radius:10px;
+width:70px;
+height:120px;
+z-index:10;
 }
 
-.enemy{
+.car-body{
 position:absolute;
-width:60px;
-height:100px;
-background:yellow;
-border-radius:10px;
+width:70px;
+height:120px;
+background:#d32f2f;
+border-radius:14px;
 }
 
-.coin{
+.windshield{
 position:absolute;
-width:25px;
-height:25px;
-background:gold;
-border-radius:50%;
+top:15px;
+left:12px;
+width:46px;
+height:28px;
+background:#90caf9;
+border-radius:8px;
 }
 
-#scoreBoard{
+.wheel{
+position:absolute;
+width:10px;
+height:22px;
+background:#111;
+border-radius:4px;
+}
+
+.w1{left:-5px;top:18px;}
+.w2{right:-5px;top:18px;}
+.w3{left:-5px;bottom:18px;}
+.w4{right:-5px;bottom:18px;}
+
+#hud{
 position:absolute;
 top:10px;
 left:10px;
 color:white;
-font-size:18px;
 font-weight:bold;
-z-index:100;
+z-index:20;
+}.enemy{
+position:absolute;
+width:70px;
+height:120px;
+z-index:9;
 }
+
+.enemy .car-body{
+background:#ffeb3b;
+}
+
+.coin{
+position:absolute;
+width:24px;
+height:24px;
+background:gold;
+border-radius:50%;
+border:2px solid #fff;
+}
+
+#controls{
+position:absolute;
+bottom:10px;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:0 20px;
+z-index:20;
+}
+
+.ctrl{
+width:70px;
+height:70px;
+border:none;
+border-radius:50%;
+font-size:28px;
+background:white;
+color:#1976d2;
+}
+
 </style>
 </head>
 
@@ -92,34 +144,142 @@ z-index:100;
 
 <div id="road"></div>
 
-<div id="scoreBoard">
+<div id="hud">
 Score: <span id="score">0</span><br>
-Coins: <span id="coins">0</span>
+Coins: <span id="coins">0</span><br>
+Level: <span id="level">1</span>
 </div>
 
-<div id="player"></div>
+<div id="player">
+<div class="car-body"></div>
+<div class="windshield"></div>
+<div class="wheel w1"></div>
+<div class="wheel w2"></div>
+<div class="wheel w3"></div>
+<div class="wheel w4"></div>
+</div>
+
+<div id="controls">
+<button class="ctrl" id="left">◀</button>
+<button class="ctrl" id="right">▶</button>
+</div>
 
 </div>
 
 <script>
-
 let score=0;
 let coins=0;
+let level=1;const player=document.getElementById("player");
+const scoreText=document.getElementById("score");
+const coinText=document.getElementById("coins");
+const levelText=document.getElementById("level");
 
-const game=document.getElementById("game");
-const player=document.getElementById("player");
+let x=145;
 
-for(let i=0;i<10;i++){
+document.getElementById("left").onclick=function(){
+if(x>20){
+x-=35;
+player.style.left=x+"px";
+}
+};
 
-let line=document.createElement("div");
+document.getElementById("right").onclick=function(){
+if(x<270){
+x+=35;
+player.style.left=x+"px";
+}
+};
 
-line.className="line";
+function createEnemy(){
 
-line.style.top=(i*80)+"px";
+const enemy=document.createElement("div");
+enemy.className="enemy";
 
-game.appendChild(line);
+enemy.innerHTML=
+'<div class="car-body"></div>'+
+'<div class="windshield"></div>'+
+'<div class="wheel w1"></div>'+
+'<div class="wheel w2"></div>'+
+'<div class="wheel w3"></div>'+
+'<div class="wheel w4"></div>';
+
+enemy.style.left=(35+Math.floor(Math.random()*4)*70)+"px";
+enemy.style.top="-140px";
+
+document.getElementById("game").appendChild(enemy);
+
+moveEnemy(enemy);
 
 }
+
+function moveEnemy(enemy){
+
+let y=-140;
+
+const timer=setInterval(function(){
+
+y+=5+level;
+
+enemy.style.top=y+"px";
+
+if(y>700){
+
+enemy.remove();
+
+score++;
+
+coins++;
+
+scoreText.innerHTML=score;
+coinText.innerHTML=coins;
+
+if(score%10===0){
+
+level++;
+
+levelText.innerHTML=level;
+
+}
+
+clearInterval(timer);
+
+createEnemy();
+
+}
+
+},30);
+
+}
+
+createEnemy();function checkCollision(){
+
+const enemies=document.querySelectorAll(".enemy");
+
+enemies.forEach(function(enemy){
+
+const p=player.getBoundingClientRect();
+const e=enemy.getBoundingClientRect();
+
+if(
+p.left<e.right &&
+p.right>e.left &&
+p.top<e.bottom &&
+p.bottom>e.top
+){
+
+alert("💥 Game Over!\nScore: "+score+
+"\nCoins: "+coins+
+"\nLevel: "+level);
+
+location.reload();
+
+}
+
+});
+
+}
+
+setInterval(checkCollision,50);
 
 </script>
 
